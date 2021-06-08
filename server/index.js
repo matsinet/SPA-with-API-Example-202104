@@ -31,7 +31,7 @@ app.route("/")
 
 // Contract of the data
 const pizzaSchema = new mongoose.Schema({
-  crust: String,
+  crust: {type: String, default: "thin"},
   cheese: String,
   sauce: String,
   toppings: [String]
@@ -47,14 +47,54 @@ app.post('/pizzas', (request, response) => {
   });
 });
 
-app.route("/pizzas/:id").get((request, response) => {
-  // express adds a "params" Object to requests
-  const id = request.params.id;
-  // handle GET request for post with an id of "id"
-  response.status(418).json({
-    id: id
+
+app.get('/pizzas', (request, response) => {
+  Pizza.find({}, (error, data) => {
+    if (error) return response.sendStatus(500).json(error);
+    return response.json(data);
   });
 });
+
+app.get('/pizzas/:id', (request, response) => {
+  Pizza.findById(request.params.id, (error, data) => {
+    if (error) return response.sendStatus(500).json(error);
+    return response.json(data);
+  });
+});
+
+app.delete('/pizzas/:id', (request, response) => {
+  Pizza.findByIdAndRemove(request.params.id, {}, (error, data) => {
+    if (error) return response.sendStatus(500).json(error);
+    return response.json(data);
+  });
+});
+
+app.put('/pizzas/:id', (request, response) => {
+  const body = request.body;
+  Pizza.findByIdAndUpdate(
+    request.params.id,
+    { $set: {
+      "crust": body.crust,
+      "cheese": body.cheese,
+      "sauce": body.sauce,
+      "toppings": body.toppings
+    } },
+    (error, data) => {
+      if (error) return response.sendStatus(500).json(error);
+      return response.json(request.body);
+    }
+  );
+});
+
+
+// app.route("/pizzas/:id").get((request, response) => {
+//   // express adds a "params" Object to requests
+//   const id = request.params.id;
+//   // handle GET request for post with an id of "id"
+//   response.status(418).json({
+//     id: id
+//   });
+// });
 
 app.route("/**").get((request, response) => {
   response.status(404).send("NOT FOUND");
