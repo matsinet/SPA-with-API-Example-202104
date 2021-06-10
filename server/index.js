@@ -20,9 +20,26 @@ const myMiddleware = (request, response, next) => {
   next(); // tell express to move to the next middleware function
 };
 
+// CORS Middleware
+const cors = (req, res, next) => {
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type, Accept,Authorization,Origin"
+  );
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+};
+
+
 // Convert string JSON to JavaScript Object
 app.use(express.json());
 app.use(myMiddleware);
+app.use(cors);
 
 app.route("/")
   .get((request, response) => {
